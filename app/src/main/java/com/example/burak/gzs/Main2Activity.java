@@ -1,6 +1,7 @@
 package com.example.burak.gzs;
 
 import android.content.Intent;
+import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -20,6 +21,7 @@ import org.w3c.dom.Text;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import okhttp3.Call;
@@ -35,7 +37,8 @@ public class Main2Activity extends AppCompatActivity {
     Button vt;
     Button nem;
     Button gaz;
-    String url = "https://api.thingspeak.com/channels/385862/feeds.json?results=50";
+    Button asilan;
+    String url = "https://api.thingspeak.com/channels/385862/feeds.json?results=999";
     ListView lst_data;
     private Feed feed;
     private List<Feed> feeds;
@@ -58,6 +61,8 @@ public class Main2Activity extends AppCompatActivity {
         vt = (Button)findViewById(R.id.btn_database);
         nem = (Button)findViewById(R.id.btn_nemChart);
         gaz = (Button)findViewById(R.id.btn_gazChart);
+        asilan = (Button)findViewById(R.id.btn_asilan);
+
         //lst_data = (ListView)findViewById(R.id.lst_data);
         //ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, android.R.id.text1, veriler);
         //lst_data.setAdapter(adapter);
@@ -95,6 +100,14 @@ public class Main2Activity extends AppCompatActivity {
             }
         });
 
+        asilan.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent ıntent = new Intent(Main2Activity.this,Main7Activity.class);
+                startActivity(ıntent);
+            }
+        });
+
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -126,7 +139,7 @@ public class Main2Activity extends AppCompatActivity {
                                     for(int i = 0 ; i < sysa.length() ; i++)
                                     {
                                         JSONObject sys = sysa.getJSONObject(i);
-                                        feed = new Feed(sys.getString("entry_id"),sys.getString("field1"),sys.getString("created_at"));
+                                        feed = new Feed(sys.getString("entry_id"),sys.getString("field3"),sys.getString("created_at"));
                                         feeds.add(feed);
                                         //test = test + sys.getString("field2")  + "<--->" + sys.getString("field1") +"\n";
                                         //veriler[i] = veri;
@@ -134,6 +147,15 @@ public class Main2Activity extends AppCompatActivity {
                                                 + "Sicaklik -> " + sys.getString("field2") + "\t"
                                                 + "Nem -> " + sys.getString("field1") + "\n";
                                         data.setText(test);
+                                        if (Integer.parseInt(sys.getString("field3").toString()) >= 250){
+                                            Database db = new Database(Main2Activity.this);
+                                            String gaz = sys.getString("field3").toString();
+                                            String sicaklik = sys.getString("field2").toString();
+                                            String nem = sys.getString("field1").toString();
+                                            db.veriEkle3(sicaklik,nem,gaz);
+                                            Log.d("sonuc","girdik v3");
+                                        }
+
 
                                         Database database = new Database(Main2Activity.this);
                                         database.veriEkle(sys.getString("field2"), sys.getString("field1"), sys.getString("field3"));
